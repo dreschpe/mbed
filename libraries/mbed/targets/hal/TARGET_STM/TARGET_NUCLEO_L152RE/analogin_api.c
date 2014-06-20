@@ -47,7 +47,7 @@ static const PinMap PinMap_ADC[] = {
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin) {
-  
+	uint32_t tmp = 0;
     ADC_TypeDef     *adc;
     ADC_InitTypeDef ADC_InitStructure;
   
@@ -70,7 +70,12 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
         // Get ADC registers structure address
         adc = (ADC_TypeDef *)(obj->adc);
-      
+        // Enable ADC clock if not running
+        tmp = RCC->CR;
+        if((tmp & 0x0001) == 0){  // check if HSI osc is off
+            tmp = tmp | 0x0001;   // switch on HSI
+            RCC->CR = tmp;
+            }
         // Enable ADC clock
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
                
